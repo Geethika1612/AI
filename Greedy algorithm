@@ -1,0 +1,39 @@
+import heapq
+graph = {
+    'S': [('A', 12), ('B', 4)],
+    'A': [('C', 7), ('D', 3)],
+    'B': [('E', 8), ('F', 2)],
+    'C': [],
+    'D': [],
+    'E': [('H', 4)],
+    'F': [('I', 9), ('G', 0)],
+    'H': [],
+    'I': [],
+    'G': []
+}
+
+def greedy_best_first_search(start, goal):
+    priority_queue = []
+    heapq.heappush(priority_queue, (heuristics[start], start)) 
+    visited = set()
+
+    while priority_queue:
+        _, current = heapq.heappop(priority_queue)
+
+        if current in visited:
+            continue
+
+        print(f"Visiting: {current}")
+
+        if current == goal:
+            print("Goal reached")
+            return
+        
+        visited.add(current)
+
+        for neighbor, _ in graph[current]:
+            if neighbor not in visited:
+                heapq.heappush(priority_queue, (heuristics[neighbor], neighbor))
+
+
+greedy_best_first_search('S', 'G')
