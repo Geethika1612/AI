@@ -1,0 +1,72 @@
+import random
+import numpy as np
+
+NUM_ITEMS = 20
+BIN_CAPACITY = 10
+POPULATION_SIZE = 30
+MAX_GENERATIONS = 100
+MUTATION_RATE = 0.1
+
+item_sizes = [random.randint(1, 10) for _ in range(NUM_ITEMS)]
+
+def generate_chromosome():
+    bins = [[] for _ in range(NUM_ITEMS)]
+    for item in range(NUM_ITEMS):
+        random.choice(bins).append(item)
+    return bins
+
+def fitness(chromosome):
+    total_bins = 0
+    for bin in chromosome:
+        if sum(item_sizes[item] for item in bin) > 0:
+            total_bins += 1
+        if sum(item_sizes[item] for item in bin) > BIN_CAPACITY:
+            total_bins += 10
+    return total_bins
+
+def one_point_crossover(parent1, parent2):
+    point = random.randint(1, NUM_ITEMS - 2)
+    child1 = parent1[:point] + parent2[point:]
+    child2 = parent2[:point] + parent1[point:]
+    return child1, child2
+
+def mutate(chromosome):
+    if random.random() < MUTATION_RATE:
+        idx1, idx2 = random.sample(range(NUM_ITEMS), 2)
+        for bin in chromosome:
+            if idx1 in bin:
+                bin.remove(idx1)
+                random.choice(chromosome).append(idx1)
+            if idx2 in bin:
+                bin.remove(idx2)
+                random.choice(chromosome).append(idx2)
+
+def roulette_wheel_selection(population, fitness_scores):
+    total_fitness = sum(1 / score for score in fitness_scores)
+    probabilities = [(1 / score) / total_fitness for score in fitness_scores]
+    return population[np.random.choice(len(population), p=probabilities)]
+
+population = [generate_chromosome() for _ in range(POPULATION_SIZE)]
+
+for generation in range(MAX_GENERATIONS):
+    fitness_scores = [fitness(chromo) for chromo in population]
+    new_population = []
+
+    while len(new_population) < POPULATION_SIZE:
+        parent1 = roulette_wheel_selection(population, fitness_scores)
+        parent2 = roulette_wheel_selection(population, fitness_scores)
+        child1, child2 = one_point_crossover(parent1, parent2)
+        mutate(child1)
+        mutate(child2)
+        new_population.extend([child1, child2])
+
+    population = new_population[:POPULATION_SIZE]
+
+    best_fit = min(fitness(pop) for pop in population)
+    print(f"Generation {generation + 1}: Best Bin Count = {best_fit}")
+    if best_fit == 1:
+        break
+
+print("Optimal Packing Found:")
+optimal_solution = min(population, key=fitness)
+print(optimal_solution)
