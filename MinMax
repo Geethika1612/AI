@@ -1,0 +1,27 @@
+def minimax(depth, node_index, is_max, values, height):
+    if depth == height:
+        return values[node_index], [values[node_index]]
+
+    if is_max:
+        left_value, left_path = minimax(depth + 1, node_index * 2, False, values, height)
+        right_value, right_path = minimax(depth + 1, node_index * 2 + 1, False, values, height)
+        
+        if left_value > right_value:
+            return left_value, [left_value] + left_path
+        else:
+            return right_value, [right_value] + right_path
+    else:
+        left_value, left_path = minimax(depth + 1, node_index * 2, True, values, height)
+        right_value, right_path = minimax(depth + 1, node_index * 2 + 1, True, values, height)
+        
+        if left_value < right_value:
+            return left_value, [left_value] + left_path
+        else:
+            return right_value, [right_value] + right_path
+
+import math
+values = [12, 10, 3, 5, 8, 10, 11, 2, 12]
+height = int(math.log2(len(values) + 1)) - 1
+optimal_value, optimal_path = minimax(0, 0, True, values, height)
+print(f"Optimal value (best move): {optimal_value}")
+print(f"Optimal path taken: {optimal_path}")
