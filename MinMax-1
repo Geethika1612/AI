@@ -1,0 +1,33 @@
+import math
+
+game_tree = {
+    'A': ['B1', 'B2', 'B3'],
+    'B1': ['C1', 'C2', 'C3'],
+    'B2': ['C4', 'C5', 'C6'],
+    'B3': ['C7', 'C8', 'C9'],
+    'C1': 12, 'C2': 10, 'C3': 3,
+    'C4': 5, 'C5': 8, 'C6': 10,
+    'C7': 11, 'C8': 2, 'C9': 12
+}
+
+def minimax_decision(node, maximizing):
+    if isinstance(game_tree[node], int):
+        return game_tree[node]
+    
+    outcomes = {child: minimax_decision(child, not maximizing) for child in game_tree[node]}
+    return max(outcomes.values()) if maximizing else min(outcomes.values())
+
+def compute_optimal_path(node, maximizing):
+    path = [node]
+    while node in game_tree and not isinstance(game_tree[node], int):
+        possible_moves = game_tree[node]
+        node = max(possible_moves, key=lambda c: minimax_decision(c, not maximizing)) if maximizing else min(possible_moves, key=lambda c: minimax_decision(c, not maximizing))
+        path.append(node)
+        maximizing = not maximizing
+    return path
+
+best_value = minimax_decision('A', True)
+best_path = compute_optimal_path('A', True)
+
+print("Optimal Value:", best_value)
+print("Optimal Path:", " -> ".join(best_path))
